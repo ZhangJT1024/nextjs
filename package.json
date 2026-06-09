@@ -1,0 +1,30 @@
+{
+  "name": "next-mysql-architecture-demo",
+  "version": "1.0.0",
+  "description": "A demo project for learning Next.js with MySQL using a 3-tier architecture.",
+  "main": "src/app/layout.tsx",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "mysql2": "^3.9.0",
+    "winston": "^3.11.0",
+    "zod": "^3.22.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "postcss": "latest",
+    "tailwindcss": "latest",
+    "autoprefixer": "latest"
+  }
+}
