@@ -10,11 +10,16 @@ export const pool = mysql.createPool({
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
+  port:Number(process.env.MYSQL_PORT ) || 3306,
+  timezone: '+08:00',
   waitForConnections: true,      // 如果连接池满了，是否等待
   connectionLimit: 10,            // 最大连接数
   queueLimit: 0,                  // 等待队列限制
   enableKeepAlive: true,          // 保持连接存活
   keepAliveInitialDelay: 10000,   // 保持存活的初始延迟
+    // 新增超时配置，延长TCP握手等待时间
+  connectTimeout: 15000,
+  acquireTimeout: 12000,
 });
 
 /**

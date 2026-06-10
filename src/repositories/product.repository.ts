@@ -12,7 +12,7 @@ export class ProductRepository {
    * @returns 数据库生成的自增 ID
    */
   async create(data: { name: string; price: number; stock: number }) {
-    const sql = 'INSERT INTO products (name, price, stock) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO user (name, price, stock) VALUES (?, ?, ?)';
     // pool.execute 会自动处理参数绑定，防止 SQL 注入
     const [result] = await pool.execute(sql, [data.name, data.price, data.stock]);
     return result.insertId;
@@ -23,7 +23,8 @@ export class ProductRepository {
    * @returns 产品数组
    */
   async findAll() {
-    const sql = 'SELECT * FROM products';
+    const sql = 'SELECT * FROM user';
+    // const sql = 'INSERT INTO user (user_name,accout,password) VALUES (?,?,?)';
     const [rows] = await pool.execute(sql);
     return rows;
   }
@@ -35,7 +36,7 @@ export class ProductRepository {
    * @returns 是否更新成功
    */
   async update(id: number, data: { name?: string; price?: number; stock?: number }) {
-    const sql = 'UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?';
+    const sql = 'UPDATE user SET name = ?, price = ?, stock = ? WHERE id = ?';
     const [result] = await pool.execute(sql, [data.name, data.price, data.stock, id]);
     return result.affectedRows > 0;
   }
@@ -46,7 +47,7 @@ export class ProductRepository {
    * @returns 是否删除成功
    */
   async delete(id: number) {
-    const sql = 'DELETE FROM products WHERE id = ?';
+    const sql = 'DELETE FROM user WHERE id = ?';
     const [result] = await pool.execute(sql, [id]);
     return result.affectedRows > 0;
   }
