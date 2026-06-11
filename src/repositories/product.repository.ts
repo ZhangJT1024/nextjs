@@ -23,7 +23,7 @@ export class ProductRepository {
    * @returns 产品数组
    */
   async findAll() {
-    const sql = 'SELECT * FROM user';
+    const sql = 'SELECT * FROM sys_user';
     // const sql = 'INSERT INTO user (user_name,accout,password) VALUES (?,?,?)';
     const [rows] = await pool.execute(sql);
     return rows;
@@ -47,7 +47,7 @@ export class ProductRepository {
    * @returns 是否删除成功
    */
   async delete(id: number) {
-    const sql = 'DELETE FROM user WHERE id = ?';
+    const sql = 'DELETE FROM sys_user WHERE id = ?';
     const [result] = await pool.execute(sql, [id]);
     return result.affectedRows > 0;
   }

@@ -19,7 +19,6 @@ export const pool = mysql.createPool({
   keepAliveInitialDelay: 10000,   // 保持存活的初始延迟
     // 新增超时配置，延长TCP握手等待时间
   connectTimeout: 15000,
-  acquireTimeout: 12000,
 });
 
 /**
