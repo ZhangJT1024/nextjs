@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const loginService = new LoginService()
 
-export async function POST(req: NextRequest) {
+export async function POST (req: NextRequest) {
   /**
    * 从请求体中获取参数
    */
@@ -21,7 +21,10 @@ export async function POST(req: NextRequest) {
     // 验证参数
     const checkMessage = checkCreateAccountsParams(body)
     if (!checkMessage.isValid) {
-      return NextResponse.json({ message: checkMessage.message }, { status: 400 })
+      return NextResponse.json(
+        { message: checkMessage.message },
+        { status: 400 }
+      )
     }
 
     const result = await loginService.createAccount(
@@ -36,11 +39,14 @@ export async function POST(req: NextRequest) {
     )
   } catch (error) {
     logger.error('POST Error:', error)
-    return NextResponse.json({ message: '请求体格式错误，请提供 JSON 数据' }, { status: 400 })
+    return NextResponse.json(
+      { message: '请求体格式错误，请提供 JSON 数据' },
+      { status: 400 }
+    )
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET (req: NextRequest) {
   /**
    * 创建账号
    * */

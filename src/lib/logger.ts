@@ -34,10 +34,10 @@ const debugger_logger = winston.createLogger({
   transports: [
     // 在开发环境的终端输出日志
     new winston.transports.Console(),
-    // 将错误级别的日志写入到 error.log 文件中
+    // 将调试级别的日志写入到 debug.log 文件中
     new winston.transports.File({
       filename: 'logs/debug.log',
-      level: 'error'
+      level: 'debug'  // ✅ 改为 debug，记录 info/debug/error/warn
     }),
 
   ],
