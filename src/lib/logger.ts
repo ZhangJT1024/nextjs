@@ -25,5 +25,23 @@ const logger = winston.createLogger({
     }),
   ],
 });
+const debugger_logger = winston.createLogger({
+  level: 'debug',
+  format: winston.format.combine(
+    winston.format.timestamp(), // 在日志中添加时间戳
+    winston.format.json()       // 将日志对象转化为 JSON 格式输出
+  ),
+  transports: [
+    // 在开发环境的终端输出日志
+    new winston.transports.Console(),
+    // 将错误级别的日志写入到 error.log 文件中
+    new winston.transports.File({
+      filename: 'logs/debug.log',
+      level: 'error'
+    }),
+
+  ],
+});
 
 export default logger;
+export { debugger_logger };

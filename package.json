@@ -10,21 +10,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^16.4.0",
+    "mysql2": "^3.9.0",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "mysql2": "^3.9.0",
     "winston": "^3.11.0",
-    "zod": "^3.22.0",
-    "dotenv": "^16.4.0"
+    "zod": "^3.22.0"
   },
   "devDependencies": {
-    "typescript": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "autoprefixer": "latest",
     "postcss": "latest",
     "tailwindcss": "latest",
-    "autoprefixer": "latest"
+    "typescript": "latest"
   }
 }

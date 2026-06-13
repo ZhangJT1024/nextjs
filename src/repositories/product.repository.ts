@@ -12,7 +12,7 @@ export class ProductRepository {
    * @returns 数据库生成的自增 ID
    */
   async create(data: { name: string; price: number; stock: number }) {
-    const sql = 'INSERT INTO user (name, price, stock) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO sys_user (name, price, stock) VALUES (?, ?, ?)';
     // pool.execute 会自动处理参数绑定，防止 SQL 注入
     const [result] = await pool.execute(sql, [data.name, data.price, data.stock]);
     return result.insertId;
@@ -24,7 +24,7 @@ export class ProductRepository {
    */
   async findAll() {
     const sql = 'SELECT * FROM sys_user';
-    // const sql = 'INSERT INTO user (user_name,accout,password) VALUES (?,?,?)';
+    // const sql = 'INSERT INTO sys_user (user_name,accout,password) VALUES (?,?,?)';
     const [rows] = await pool.execute(sql);
     return rows;
   }
@@ -36,7 +36,7 @@ export class ProductRepository {
    * @returns 是否更新成功
    */
   async update(id: number, data: { name?: string; price?: number; stock?: number }) {
-    const sql = 'UPDATE user SET name = ?, price = ?, stock = ? WHERE id = ?';
+    const sql = 'UPDATE sys_user SET name = ?, price = ?, stock = ? WHERE id = ?';
     const [result] = await pool.execute(sql, [data.name, data.price, data.stock, id]);
     return result.affectedRows > 0;
   }
