@@ -1,19 +1,38 @@
-import { NextRequest, NextResponse } from 'next/server';
-import {LoginService} from "@/services/login.service"
-import {debugger_logger} from "@/lib/logger"
-import {LoginParamsType} from "@/types"
+import { checkCreateAccountsParams } from '@/app/api/login/composables'
+import { SUCCESS } from '@/constants'
+import { LoginService } from '@/services/login.service'
+import { LoginParamsType } from '@/types'
+import { NextRequest, NextResponse } from 'next/server'
 /**
  * 接口层 (Interface Layer - Route Handler)
  * 职责：处理带有 ID 参数的请求，如 DELETE 或 PUT。
  */
 
-const loginService = new LoginService();
+const loginService = new LoginService()
 
-export async function POST(req: NextRequest,params:LoginParamsType) { 
-    /**
-     * 创建账号
-     * */ 
-    if(params.account && params.password && params.nickname){
-
-    }
+export async function POST (req: NextRequest, params: LoginParamsType) {
+  /**
+   * 创建账号
+   * */
+  const checkMessage = checkCreateAccountsParams(params)
+  // 验证参数
+  if (!checkMessage.isValid) {
+    NextResponse.json({ message: checkMessage.message }, { status: 400 })
+  } else {
+    const result = await loginService.createAccount(
+      params.account,
+      params.password,
+      params.nickname
+    )
+    NextResponse.json(
+      { message: result.message },
+      { status: result.status === SUCCESS ? 200 : 400 }
+    )
+  }
+}
+export async function get (req: NextRequest, params: LoginParamsType) {
+  /**
+   * 创建账号
+   * */
+  NextResponse.json({ message: 'test测试' }, { status: 200 })
 }

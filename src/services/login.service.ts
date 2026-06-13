@@ -14,6 +14,7 @@ async createAccount(account: string, password: string, nickname: string) {
         () => {
             debugger_logger.info('Service: Account created successfully', { account, nickname });
             return {
+                status: "success",
                 message: 'Account created successfully',
                 data: { account, nickname }
             }
@@ -21,6 +22,7 @@ async createAccount(account: string, password: string, nickname: string) {
     ).catch(error=>{
             debugger_logger.error('Service: Failed to create account', { error });
             return {
+                status: "error",
                 message: 'Failed to create account',
                 error
             }

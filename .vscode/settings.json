@@ -1,0 +1,6 @@
+{
+  "editor.defaultFormatter": "numso.prettier-standard-vscode",
+  "notebook.defaultFormatter": "numso.prettier-standard-vscode",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true
+}
