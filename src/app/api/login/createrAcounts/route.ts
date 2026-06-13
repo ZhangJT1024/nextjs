@@ -17,22 +17,22 @@ export async function POST (req: NextRequest, params: LoginParamsType) {
   const checkMessage = checkCreateAccountsParams(params)
   // 验证参数
   if (!checkMessage.isValid) {
-    NextResponse.json({ message: checkMessage.message }, { status: 400 })
+    return NextResponse.json({ message: checkMessage.message }, { status: 400 })
   } else {
     const result = await loginService.createAccount(
       params.account,
       params.password,
       params.nickname
     )
-    NextResponse.json(
+    return NextResponse.json(
       { message: result.message },
       { status: result.status === SUCCESS ? 200 : 400 }
     )
   }
 }
-export async function get (req: NextRequest, params: LoginParamsType) {
+export async function GET (req: NextRequest, params: LoginParamsType) {
   /**
    * 创建账号
    * */
-  NextResponse.json({ message: 'test测试' }, { status: 200 })
+  return NextResponse.json({ message: 'test 测试' }, { status: 200 })
 }
