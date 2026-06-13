@@ -1,7 +1,8 @@
 import { checkCreateAccountsParams } from '@/app/api/login/composables'
 import { SUCCESS } from '@/constants'
-import logger from '@/lib/logger'
+import logger, { debugger_logger } from '@/lib/logger'
 import { LoginService } from '@/services/login.service'
+import { generateToken, TokenPayload } from '@/utils/token.utils'
 import { NextRequest, NextResponse } from 'next/server'
 /**
  * 接口层 (Interface Layer - Route Handler)
@@ -11,34 +12,61 @@ import { NextRequest, NextResponse } from 'next/server'
 const loginService = new LoginService()
 
 export async function POST (req: NextRequest) {
-  /**
-   * 从请求体中获取参数
-   */
   try {
+    // 从请求体中获取参数
     const body = await req.json()
-    logger.info('Route: Received request to create account', { body, req })
+    debugger_logger.info('Route: Received request to create account', {
+      body,
+      req
+    })
 
     // 验证参数
     const checkMessage = checkCreateAccountsParams(body)
     if (!checkMessage.isValid) {
-      return NextResponse.json(
-        { message: checkMessage.message },
-        { status: 400 }
-      )
+      return NextResponse.json(checkMessage.message, { status: 400 })
     }
 
-    const result = await loginService.createAccount(
+    // ✅ 创建账号（包含 bcrypt 哈希密码）
+    const accountResult = await loginService.createAccount(
       body.account,
       body.password,
       body.nickname
     )
 
-    return NextResponse.json(
-      { message: result.message },
-      { status: result.status === SUCCESS ? 200 : 400 }
-    )
+    // ✅ 生成 JWT Token（使用账号和昵称作为 payload）
+    if (accountResult.status === SUCCESS) {
+      const tokenPayload: TokenPayload = {
+        accountId: body.account, // ⭐ 用户 ID
+        nickname: body.nickname, // ⭐ 用户昵称
+        account: body.account // ✅ 可选：原始账号名
+      }
+      const token = generateToken(tokenPayload)
+
+      debugger_logger.info('Route: JWT Token generated successfully', {
+        accountId: body.account,
+        nickname: body.nickname
+      })
+
+      return NextResponse.json(
+        {
+          message: '创建成功',
+          status: 200,
+          token // ✅ 返回 token 给前端
+        },
+        { status: 200 }
+      )
+    } else {
+      debugger_logger.error(
+        'Route: Account creation failed',
+        accountResult.message
+      )
+      return NextResponse.json(
+        { message: accountResult.message },
+        { status: 400 }
+      )
+    }
   } catch (error) {
-    logger.error('POST Error:', error)
+    debugger_logger.error('POST Error:', error)
     return NextResponse.json(
       { message: '请求体格式错误，请提供 JSON 数据' },
       { status: 400 }

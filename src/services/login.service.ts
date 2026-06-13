@@ -10,39 +10,27 @@ export class LoginService {
    * 登录模块
    */
   async createAccount (account: string, password: string, nickname: string) {
-    const hashedPassword = await bcrypt.hash(
-      password,
-      Number(process.env.HASH_LEVEL)
-    )
+    // bcrypt.hash(密码，盐值轮数) - 使用硬编码数字 12（平衡安全性和性能）
+    const hashedPassword = await bcrypt.hash(password, 12)
     return loginRepository
       .creatorAccount(account, hashedPassword, nickname)
       .then(res => {
-        debugger_logger.info('Service: Account created successfully', {
+        debugger_logger.info('login.service.ts----账号创建成功', {
           account,
-          nickname,
-          res
+          nickname
         })
-        if (res.status === SUCCESS) {
-          return {
-            status: 'success',
-            message: res.message || 'Account created successfully',
-            data: { account, nickname }
-          }
-        } else {
-          return {
-            status: 'error',
-            message: res.message || 'Failed to create account',
-            data: { account, nickname }
-          }
+
+        return {
+          status: res.status,
+          message: res.message,
+          data: { account, nickname }
         }
       })
       .catch(error => {
-        debugger_logger.error('Service: Failed to create account', { error })
-        return {
-          status: 'error',
-          message: 'Failed to create account',
-          error
-        }
+        debugger_logger.error('login.service.ts----账号创建失败', {
+          error: error.message
+        })
+        throw error // 重新抛出错误，让调用层处理
       })
   }
 }
