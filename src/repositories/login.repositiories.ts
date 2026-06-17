@@ -28,11 +28,48 @@ export class LoginRepository {
       return { status: 'error', message: '账号已存在' }
     } else {
       const insertSql = `INSERT INTO sys_user (account, password, user_name,create_time) VALUES (?, ?, ?,?)`
-      await pool.execute(insertSql, [account, password, nickname, new Date()])
-      debugger_logger.info('login.repositiories.ts----账号创建成功', {
-        account
-      })
-      return { status: 'success', message: '账号创建成功' }
+      const userResult = await pool.execute(insertSql, [
+        account,
+        password,
+        nickname,
+        new Date()
+      ])
+      if (userResult.length > 0) {
+        const searchUserSql = `SELECT * FROM sys_user WHERE account = ?`
+        const [userInfoResult] = await pool.execute(searchUserSql, [account])
+        return {
+          status: 'success',
+          data: { userInfo: userInfoResult, message: '账号创建成功' }
+        }
+      }
+      return { status: 'error', data: { message: '账号创建失败' } }
     }
+  }
+  async storeToken (userId: string, token: string) {
+    // 查询账号是否存在 acc
+    const searchAccountSql = `SELECT * FROM sys_user WHERE id= ?`
+    const [result] = await pool.execute(searchAccountSql, [userId])
+    if ((result as any).length === 0) {
+      debugger_logger.warn(
+        'login.repositiories.ts----账号不存在，无法存储Token',
+        { userId: userId }
+      )
+      return { status: 'error', message: '账号不存在，无法存储Token' }
+    }
+    // 是否已经存在token
+    const searchTokenSql = `SELECT * FROM sys_token WHERE user_id = ?`
+    const [tokenResult] = await pool.execute(searchTokenSql, [userId])
+    // 存在token就删除
+    if ((tokenResult as any).length > 0) {
+      const deleteTokenSql = `DELETE FROM sys_token WHERE user_id = ?`
+      await pool.execute(deleteTokenSql, [userId])
+      debugger_logger.info(
+        'login.repositiories.ts----旧Token已删除，准备存储新Token',
+        { userId }
+      )
+    }
+    const sql =
+      'INSERT INTO sys_token  (user_id, token, expiration_date) VALUES (?, ?, ?)'
+    await pool.execute(sql, [userId, token, new Date(Date.now() + 86400000)])
   }
 }
