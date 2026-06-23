@@ -9,8 +9,3 @@ export function isEmpty (value: any) {
     (typeof value === 'string' && value.trim().length === 0)
   )
 }
-
-/**
- * 校验token
- * */
-export function checkToken (account: string, token: string) {}

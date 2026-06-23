@@ -115,3 +115,8 @@ export const checkLoginParams = (params: {
     }
   }
 }
+
+/**
+ * 校验token
+ * */
+export function checkToken (token: string) {}

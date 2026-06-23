@@ -3,7 +3,6 @@ import { debugger_logger } from '../lib/logger'
 import { LoginRepository } from '../repositories/login.repositiories'
 // 密码哈希值 - 使用 bcrypt.compare() 进行比对
 import bcrypt from 'bcrypt'
-import { userInfo } from 'node:os'
 const loginRepository = new LoginRepository()
 
 export class LoginService {

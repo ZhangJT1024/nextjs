@@ -51,9 +51,10 @@ export class LoginRepository {
         return { status: 'error', data: { message: '账号创建失败' } }
       }
     } catch (error) {
+      debugger_logger.error('login.repositiories.ts----注册失败', { error })
       return {
         status: 'error',
-        message: error || '账号创建失败'
+        message: error instanceof Error ? error.message : '账号创建失败'
       }
     }
   }
@@ -74,7 +75,7 @@ export class LoginRepository {
   /**
    * 登录
    * @param account 账号
-   * @param password 密码
+   * @param password 密码（明文）
    * */
   async login (account: string, password: string) {
     const result = await searchAccount(account)
@@ -89,8 +90,12 @@ export class LoginRepository {
         }
         const token = generateToken(tokenPayload)
 
-        const hashToken = bcrypt.hash(token, 12)
-        this.storeToken(result[0]?.id, hashToken)
+        const insertTokenSql = `INSERT INTO  sys_token (token,user_id,expiration_date) VALUES(?,?,?)`
+        await pool.execute(insertTokenSql, [
+          token,
+          result[0]?.id,
+          new Date(Date.now() + 86400000)
+        ])
         return {
           status: 'success',
           message: '登录成功',
@@ -113,27 +118,30 @@ export class LoginRepository {
     }
   }
   async storeToken (userId: string, token: string) {
-    ;``
     // 查询账号是否存在 acc
     const searchAccountSql = `SELECT * FROM sys_user WHERE id= ?`
-    const [result] = await pool.execute(searchAccountSql, [userId])
-    if ((result as any).length === 0) {
+    const result = (await pool.execute(searchAccountSql, [userId])) as any[]
+    if (result.length === 0) {
       debugger_logger.warn(
-        'login.repositiories.ts----账号不存在，无法存储Token',
-        { userId: userId }
+        'login.repositiories.ts----账号不存在，无法存储 Token',
+        { userId }
       )
-      return { status: 'error', message: '账号不存在，无法存储Token' }
+      return { status: 'error', message: '账号不存在，无法存储 Token' }
     }
-    // 是否已经存在token
+    // 是否已经存在 token
     const searchTokenSql = `SELECT * FROM sys_token WHERE user_id = ?`
-    const [tokenResult] = await pool.execute(searchTokenSql, [userId])
-    // 存在token就删除
-    if ((tokenResult as any).length > 0) {
+    const tokenResult = (await pool.execute(searchTokenSql, [userId])) as any[]
+    // 存在 token 就删除
+    if (tokenResult.length > 0) {
       const deleteTokenSql = `DELETE FROM sys_token WHERE user_id = ?`
       await pool.execute(deleteTokenSql, [userId])
+      debugger_logger.info(
+        'login.repositiories.ts----旧 Token 已删除，准备存储新 Token',
+        { userId }
+      )
     }
     const sql =
-      'INSERT INTO sys_token  (user_id, token, expiration_date) VALUES (?, ?, ?)'
+      'INSERT INTO sys_token (user_id, token, expiration_date) VALUES (?, ?, ?)'
     await pool.execute(sql, [userId, token, new Date(Date.now() + 86400000)])
   }
 }
