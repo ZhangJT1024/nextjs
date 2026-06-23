@@ -1,7 +1,7 @@
 import { SUCCESS } from '@/constants'
 import { debugger_logger } from '../lib/logger'
 import { LoginRepository } from '../repositories/login.repositiories'
-// 密码哈希值
+// 密码哈希值 - 使用 bcrypt.compare() 进行比对
 import bcrypt from 'bcrypt'
 import { userInfo } from 'node:os'
 const loginRepository = new LoginRepository()
@@ -33,6 +33,20 @@ export class LoginService {
         })
         throw error // 重新抛出错误，让调用层处理
       })
+  }
+  /**
+   * 登出 删除token
+   * */
+  async logoutService (account: string, token: string) {
+    const hashedToken = await bcrypt.hash(token, 12)
+    return loginRepository.logout(account, hashedToken)
+  }
+
+  /**
+   * login 登录账号
+   * */
+  async login (account: string, password: string) {
+    return loginRepository.login(account, password)
   }
   /**
    * 存储Token

@@ -4,7 +4,6 @@ import logger, { debugger_logger } from '@/lib/logger'
 import { LoginService } from '@/services/login.service'
 import { generateToken, TokenPayload } from '@/utils/token.utils'
 import { NextRequest, NextResponse } from 'next/server'
-import { log } from 'node:console'
 /**
  * 接口层 (Interface Layer - Route Handler)
  * 职责：处理 POST 创建账号、GET 测试请求
@@ -64,7 +63,8 @@ export async function POST (req: NextRequest) {
           data: {
             message: '创建成功',
             status: 200,
-            token // ✅ 返回 token 给前端
+            token, // ✅ 返回 token 给前端
+            userInfo: accountResult.data?.userInfo[0] || null // ✅ 返回用户信息给前端
           }
         },
         {
