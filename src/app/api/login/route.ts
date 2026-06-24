@@ -14,10 +14,9 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           status: 'error',
-          message: checkMessage.message.message,
-          data: null
+          data: { message: checkMessage.message.message, code: 500 }
         },
-        { status: 400 }
+        { status: 200 }
       )
     }
     const loginResult = await loginService.login(body.account, body.password)
@@ -26,8 +25,8 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           status: 'success',
-          message: loginResult.message,
-          data: { ...loginResult.data, code: 200 }
+
+          data: { ...loginResult.data, message: loginResult.message, code: 200 }
         },
         { status: 200 }
       )
@@ -35,10 +34,10 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json(
         {
           status: 'error',
-          message: loginResult.message || '登录失败',
-          data: null
+
+          data: { code: 500, message: loginResult.message || '登录失败' }
         },
-        { status: 401 }
+        { status: 200 }
       )
     }
   } catch (error) {
@@ -46,8 +45,11 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json(
       {
         status: 'error',
-        message: error instanceof Error ? error.message : '登录处理出错',
-        data: null
+
+        data: {
+          message: error instanceof Error ? error.message : '登录处理出错',
+          code: 500
+        }
       },
       { status: 500 }
     )
