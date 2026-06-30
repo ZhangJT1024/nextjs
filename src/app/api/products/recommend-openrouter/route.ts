@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import createOpenRouterClient from '@/lib/ai-sdk'
+import { OpenRouterClient } from '@/lib/ai-sdk'
 
-// 创建 OpenRouter API 客户端（不依赖 Ollama）
-const openRouter = createOpenRouterClient()
+// 创建 OpenRouter API 客户端（零依赖，原生 fetch）
+const openRouter = new OpenRouterClient(process.env.OPENROUTER_API_KEY || '')
 
 interface Product {
   id: number
@@ -12,7 +12,7 @@ interface Product {
   description?: string
 }
 
-export async function POST(request: Request) {
+export async function POST (request: Request) {
   try {
     const { userId, history, context } = await request.json()
 
@@ -20,16 +20,21 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: 'OpenRouter API Key 未配置，请先设置 OPENROUTER_API_KEY 环境变量'
+          message:
+            'OpenRouter API Key 未配置，请先设置 OPENROUTER_API_KEY 环境变量'
         },
         { status: 403 }
       )
     }
 
     // 1. 准备推荐请求内容
-    const userProfile = userId && history
-      ? `用户最近浏览了${history.slice(-5).map(p => p.name).join(', ')}，类别偏好：${context?.categoryPreference || '未设定'}`
-      : '暂无用户画像信息'
+    const userProfile =
+      userId && history
+        ? `用户最近浏览了${history
+            .slice(-5)
+            .map(p => p.name)
+            .join(', ')}，类别偏好：${context?.categoryPreference || '未设定'}`
+        : '暂无用户画像信息'
 
     const systemPrompt = `你是一个专业的电商商品推荐专家。
 请根据以下信息和用户需求，生成个性化的商品推荐文案。
@@ -50,15 +55,19 @@ ${userProfile}
 
 请生成推荐文案：`
 
-    // 2. 调用 OpenRouter API（不依赖 Ollama）
-    const response = await openRouter.chat([
-      { role: 'system', content: '你是一个电商商品推荐专家' },
-      { role: 'user', content: systemPrompt }
-    ], {
-      model: 'mistralai/mistral-7b-instruct:free', // 免费模型
-      temperature: 0.7,
-      max_tokens: 512
-    })
+    // 2. 调用 OpenRouter API（零依赖，原生 fetch）
+    const response = await openRouter.chat(
+      [
+        { role: 'system', content: '你是一个电商商品推荐专家' },
+        { role: 'user', content: systemPrompt }
+      ],
+      'mistralai/mistral-7b-instruct:free', // 模型名称（必填）
+      {
+        // 选项对象
+        temperature: 0.7,
+        max_tokens: 512
+      }
+    )
 
     return NextResponse.json({
       success: true,
@@ -69,7 +78,6 @@ ${userProfile}
         description: response
       }
     })
-
   } catch (error) {
     console.error('推荐 API 错误:', error)
 
@@ -86,26 +94,31 @@ ${userProfile}
   }
 }
 
-export async function GET(request: Request) {
+export async function GET (request: Request) {
   const url = new URL(request.url)
   const productId = url.searchParams.get('productId') as string
 
   if (!productId) {
-    return NextResponse.json(
-      { error: '缺少 productId 参数' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '缺少 productId 参数' }, { status: 400 })
   }
 
   try {
-    // 使用 OpenRouter API 生成商品推荐文案
-    const response = await openRouter.chat([
-      { role: 'system', content: '你是一个电商商品推荐专家，请为以下商品生成有吸引力的推荐文案' },
-      {
-        role: 'user',
-        content: `为 ID 为${productId}的商品生成简短有力的推荐描述`
-      }
-    ], { model: 'mistralai/mistral-7b-instruct:free' })
+    // 使用 OpenRouter API 生成商品推荐文案（零依赖）
+    const response = await openRouter.chat(
+      [
+        {
+          role: 'system',
+          content:
+            '你是一个电商商品推荐专家，请为以下商品生成有吸引力的推荐文案'
+        },
+        {
+          role: 'user',
+          content: `为 ID 为${productId}的商品生成简短有力的推荐描述`
+        }
+      ],
+      'mistralai/mistral-7b-instruct:free', // 模型名称（必填）
+      {} // options（可选）
+    )
 
     return NextResponse.json({
       success: true,
@@ -115,9 +128,6 @@ export async function GET(request: Request) {
       }
     })
   } catch (error) {
-    return NextResponse.json(
-      { error: '推荐服务出错' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: '推荐服务出错' }, { status: 500 })
   }
 }
